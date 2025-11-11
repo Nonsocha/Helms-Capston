@@ -1,9 +1,10 @@
-pipeline {
+pipeline { 
     agent any
 
     environment {
         IMAGE = "sirwills/myapp"
         CHART = "myapp-chart"
+        KUBECONFIG_PATH = "/var/lib/jenkins/.kube/config" // Jenkins-owned kubeconfig
     }
 
     stages {
@@ -16,7 +17,6 @@ pipeline {
         stage('Build Docker') {
             steps {
                 script {
-                    // Use double quotes for variable substitution
                     sh "docker build -t ${IMAGE}:${GIT_COMMIT.substring(0,7)} ."
                 }
             }
@@ -35,10 +35,10 @@ pipeline {
 
         stage('Deploy with Helm') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG')]) {
+                script {
                     sh """
-                        export KUBECONFIG=\$KUBECONFIG
-                        helm upgrade --install myapp ./myapp-chart \\
+                        export KUBECONFIG=${KUBECONFIG_PATH}
+                        helm upgrade --install myapp ./myapp \\
                             --namespace demo --create-namespace \\
                             --set image.repository=${IMAGE},image.tag=${GIT_COMMIT.substring(0,7)} \\
                             --wait --timeout 5m --atomic
@@ -57,3 +57,4 @@ pipeline {
         }
     }
 }
+
