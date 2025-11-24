@@ -321,6 +321,7 @@ If Jenkins is not public, expose it with `ngrok`:
 ngrok http 8080
 # copy the https URL like https://abcd1234.ngrok.io
 ```
+N/B: Ensure ngrok is installed in your machine,it exposes jenkins (running locally) to the internet
 
 On GitHub repo Settings → Webhooks → Add webhook:
 
